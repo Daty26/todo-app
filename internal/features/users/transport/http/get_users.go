@@ -3,8 +3,8 @@ package users_transport_http
 import (
 	"fmt"
 	core_logger "github.com/Daty26/todo-app/internal/core/logger"
+	core_http_request "github.com/Daty26/todo-app/internal/core/transport/http/request"
 	core_http_reponse "github.com/Daty26/todo-app/internal/core/transport/http/response"
-	core_http_utils "github.com/Daty26/todo-app/internal/core/transport/http/utils"
 	"net/http"
 )
 
@@ -29,11 +29,15 @@ func (h *UsersHTTPHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 }
 func getLimitOffsetQueryParams(r *http.Request) (*int, *int, error) {
-	limit, err := core_http_utils.GetIntQueryParam(r, "limit")
+	const (
+		limitQueryParamKey  = "limit"
+		offsetQueryParamKey = "offset"
+	)
+	limit, err := core_http_request.GetIntQueryParam(r, limitQueryParamKey)
 	if err != nil {
 		return nil, nil, fmt.Errorf("couldn't get `limit` param: %w", err)
 	}
-	offset, err := core_http_utils.GetIntQueryParam(r, "offset")
+	offset, err := core_http_request.GetIntQueryParam(r, offsetQueryParamKey)
 	if err != nil {
 		return nil, nil, fmt.Errorf("couldn't get `offset` param: %w", err)
 	}

@@ -13,7 +13,7 @@ env-cleanup:
 	@read -p "Are you sure you wanna clean up all env files? You might loose all the data. [y/N]: " ans; \
 	if [ "$$ans" = "y" ]; then \
 		docker compose down todoapp-postgres port-forwarder && \
-		rm -rf out/pgdata && \
+		rm -rf ${PROJECT_ROOT}/out/pgdata && \
 		echo "files were cleaned"; \
 	else \
 		echo "Env cleanup was cancelled"; \

@@ -7,7 +7,6 @@ import (
 	core_http_request "github.com/Daty26/todo-app/internal/core/transport/http/request"
 	core_http_reponse "github.com/Daty26/todo-app/internal/core/transport/http/response"
 	core_http_types "github.com/Daty26/todo-app/internal/core/transport/http/types"
-	core_http_utils "github.com/Daty26/todo-app/internal/core/transport/http/utils"
 	"net/http"
 	"strings"
 )
@@ -48,7 +47,7 @@ func (h *UsersHTTPHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
 	log := core_logger.FromContext(ctx)
 	responseHandler := core_http_reponse.NewHTTPesponseHandler(log, w)
 
-	userID, err := core_http_utils.GetIntPathValues(r, "id")
+	userID, err := core_http_request.GetIntPathValues(r, "id")
 	if err != nil {
 		responseHandler.ErrorResponse(err, "failed to decode and validate HTTP request")
 		return
@@ -74,12 +73,8 @@ func (h *UsersHTTPHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
 			request.FullName,
 			request.PhoneNumber,
 		))
-	w.WriteHeader(http.StatusOK)
 }
 
 func userPatchFromRequest(request PatchUserRequest) domain.UserPatch {
-	return domain.UserPatch{
-		FullName:    request.FullName.ToDomain(),
-		PhoneNumber: request.PhoneNumber.ToDomain(),
-	}
+	return domain.NewUserPatch(request.FullName.ToDomain(), request.PhoneNumber.ToDomain())
 }

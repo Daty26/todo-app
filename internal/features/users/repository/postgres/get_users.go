@@ -17,7 +17,7 @@ func (r *UserRepository) GetUsers(
 		SELECT id, version, full_name, phone_number from todoapp.users
 		ORDER BY id ASC	
 		LIMIT $1
-		offset $2
+		OFFSET $2;
 `
 	rows, err := r.pool.Query(ctx, query, limit, offset)
 	if err != nil {
@@ -35,7 +35,6 @@ func (r *UserRepository) GetUsers(
 	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("next rows: %w", err)
 	}
-	fmt.Println(users)
 	userDomains := userDomainsFromModels(users)
 	return userDomains, nil
 

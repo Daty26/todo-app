@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/Daty26/todo-app/internal/core/domain"
 	core_errors "github.com/Daty26/todo-app/internal/core/errors"
-	"github.com/jackc/pgx/v5"
+	core_postgres_pool "github.com/Daty26/todo-app/internal/core/repository/postgres/pool"
 )
 
 func (r *UserRepository) PatchUser(ctx context.Context, id int, user domain.User) (domain.User, error) {
@@ -23,12 +23,12 @@ func (r *UserRepository) PatchUser(ctx context.Context, id int, user domain.User
 		id, 
 		version, 
 		full_name,
-		phone_number
+		phone_number;
 `
 	var userModel UserModel
 	row := r.pool.QueryRow(ctx, query, user.FullName, user.PhoneNumber, id, user.Version)
 	if err := row.Scan(&userModel.ID, &userModel.Version, &userModel.FullName, &userModel.PhoneNumber); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if errors.Is(err, core_postgres_pool.ErrNoRows) {
 			return domain.User{}, fmt.Errorf(""+
 				"user with id='%d' concurrently accessed:", id, core_errors.ErrConflict)
 		}

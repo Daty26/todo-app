@@ -2,8 +2,8 @@ package users_transport_http
 
 import (
 	core_logger "github.com/Daty26/todo-app/internal/core/logger"
+	core_http_utils "github.com/Daty26/todo-app/internal/core/transport/http/request"
 	core_http_reponse "github.com/Daty26/todo-app/internal/core/transport/http/response"
-	core_http_utils "github.com/Daty26/todo-app/internal/core/transport/http/utils"
 	"net/http"
 )
 

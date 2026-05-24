@@ -11,7 +11,7 @@ func (r *UserRepository) DeleteUser(ctx context.Context, id int) error {
 	defer cancel()
 	query := `
 	DELETE FROM todoapp.users
-	WHERE id=$1
+	WHERE id=$1;
 `
 	commandTag, err := r.pool.Exec(ctx, query, id)
 	if err != nil {

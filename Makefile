@@ -12,14 +12,14 @@ env-down:
 env-cleanup:
 	@read -p "Are you sure you wanna clean up all env files? You might loose all the data. [y/N]: " ans; \
 	if [ "$$ans" = "y" ]; then \
-		docker compose down todoapp-postgres && \
-		rm -rf out/pgdata && \
+		docker compose down todoapp-postgres port-forwarder && \
+		rm -rf ${PROJECT_ROOT}/out/pgdata && \
 		echo "files were cleaned"; \
 	else \
 		echo "Env cleanup was cancelled"; \
 	fi
 
-env-port-forwarder:
+env-port-forward:
 	@docker compose up -d port-forwarder
 
 env-port-close:
@@ -52,4 +52,10 @@ migrate-up:
 	@make migrate-action action=up
 migrate-down:
 	@make migrate-action action=down
+
+todoapp-run:
+	@export LOGGER_FOLDER=${PROJECT_ROOT}/out/logs && \
+	export POSTGRES_HOST=localhost && \
+	go mod tidy && \
+	go run ${PROJECT_ROOT}/cmd/todoapp/main.go
 

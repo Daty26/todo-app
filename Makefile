@@ -53,6 +53,15 @@ migrate-up:
 migrate-down:
 	@make migrate-action action=down
 
+logs-cleanup:
+	@read -p "Are you sure you wanna delete all log files? You might loose all the data. [y/N]: " ans; \
+    	if [ "$$ans" = "y" ]; then \
+    		rm -rf ${PROJECT_ROOT}/out/logs && \
+    		echo "Log files were cleaned"; \
+    	else \
+    		echo "Log files clean up was cancelled"; \
+    	fi
+
 todoapp-run:
 	@export LOGGER_FOLDER=${PROJECT_ROOT}/out/logs && \
 	export POSTGRES_HOST=localhost && \

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	core_config "github.com/Daty26/todo-app/internal/core/config"
 	core_logger "github.com/Daty26/todo-app/internal/core/logger"
 	"github.com/Daty26/todo-app/internal/core/repository/postgres/pool/pgx"
 	core_http_middleware "github.com/Daty26/todo-app/internal/core/transport/http/middleware"
@@ -20,10 +21,9 @@ import (
 	"time"
 )
 
-var timeZone = time.UTC
-
 func main() {
-	time.Local = timeZone
+	config := core_config.NewConfigMust()
+	time.Local = config.TimeZone
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 
 	defer cancel()
@@ -34,7 +34,7 @@ func main() {
 	}
 	defer logger.Close()
 
-	logger.Debug("application time zone", zap.Any("zone", timeZone))
+	logger.Debug("application time zone", zap.Any("zone", time.Local))
 
 	logger.Debug("Initializing postgres connection pool")
 	pool, err := core_pgx_pool.NewPool(ctx, core_pgx_pool.NewConfigMust())

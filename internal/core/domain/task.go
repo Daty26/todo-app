@@ -93,6 +93,18 @@ func NewTaskPatch(title Nullable[string], description Nullable[string], complete
 		Completed:   completed,
 	}
 }
+
+func (t *Task) CompletionDuration() *time.Duration {
+	if !t.Completed {
+		return nil
+	}
+	if t.CompletedAt == nil {
+		return nil
+	}
+	duration := t.CompletedAt.Sub(t.CreatedAt)
+	return &duration
+}
+
 func (p *TaskPatch) Validate() error {
 	if p.Title.Set && p.Title.Value == nil {
 		return fmt.Errorf("`Title` can't be patche to NULL: %w", core_errors.ErrInvalidArgument)

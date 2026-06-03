@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <style>
+        :root {
+            --bg: #f5f6f2;
+            --surface: #ffffff;
+            --surface-2: #f9faf7;
+            --line: #dcded6;
+            --text: #20251f;
+            --muted: #697167;
+            --green: #2c7653;
+            --green-dark: #1f563c;
+            --blue: #265f88;
+            --red: #ad3a32;
+            --amber: #9a661f;
+            --nav: #17231c;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 14px;
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit;
+        }
+
+        button {
+            min-height: 36px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            background: var(--green);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 700;
+            padding: 8px 12px;
+        }
+
+        button:hover {
+            background: var(--green-dark);
+        }
+
+        button.secondary {
+            border-color: var(--line);
+            background: #fff;
+            color: var(--text);
+        }
+
+        button.secondary:hover {
+            background: #eef1e8;
+        }
+
+        button.danger {
+            background: var(--red);
+        }
+
+        button.warning {
+            background: var(--amber);
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            min-height: 38px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #fff;
+            color: var(--text);
+            padding: 8px 10px;
+        }
+
+        textarea {
+            min-height: 76px;
+            resize: vertical;
+        }
+
+        label {
+            display: grid;
+            gap: 5px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        h1,
+        h2,
+        h3,
+        p {
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 18px;
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: 20px;
+        }
+
+        h3 {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0;
+            text-transform: uppercase;
+        }
+
+        .app {
+            display: grid;
+            min-height: 100vh;
+            grid-template-columns: 248px minmax(0, 1fr);
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+            gap: 18px;
+            background: var(--nav);
+            color: #fff;
+            padding: 20px 16px;
+        }
+
+        .brand {
+            display: grid;
+            gap: 4px;
+            padding: 4px 4px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .brand span {
+            color: rgba(255, 255, 255, 0.68);
+            font-size: 12px;
+        }
+
+        .nav {
+            display: grid;
+            gap: 8px;
+        }
+
+        .nav button {
+            display: flex;
+            justify-content: flex-start;
+            width: 100%;
+            border-color: transparent;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.75);
+            text-align: left;
+        }
+
+        .nav button.active,
+        .nav button:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+        }
+
+        .api-panel {
+            display: grid;
+            gap: 8px;
+            margin-top: auto;
+        }
+
+        .api-panel label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .api-panel input {
+            border-color: rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+
+        .content {
+            min-width: 0;
+            padding: 22px;
+        }
+
+        .topbar {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .topbar p {
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .message {
+            min-height: 34px;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            background: var(--surface);
+            color: var(--muted);
+            padding: 8px 12px;
+        }
+
+        .message.ok {
+            border-color: #b8d7c6;
+            color: var(--green-dark);
+        }
+
+        .message.error {
+            border-color: #e0b8b4;
+            color: var(--red);
+        }
+
+        .view {
+            display: grid;
+            gap: 16px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+        }
+
+        .panel {
+            min-width: 0;
+            border: 1px solid var(--line);
+            background: var(--surface);
+        }
+
+        .panel-head {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 58px;
+            border-bottom: 1px solid var(--line);
+            padding: 13px 15px;
+        }
+
+        .panel-body {
+            display: grid;
+            gap: 14px;
+            padding: 15px;
+        }
+
+        .form {
+            display: grid;
+            gap: 10px;
+        }
+
+        .form + .form {
+            border-top: 1px solid var(--line);
+            padding-top: 14px;
+        }
+
+        .row {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: end;
+        }
+
+        .toolbar label {
+            width: 110px;
+        }
+
+        .table-wrap {
+            overflow: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid var(--line);
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+            white-space: nowrap;
+        }
+
+        th {
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        td.actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            white-space: normal;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 26px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--surface-2);
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+            padding: 3px 9px;
+        }
+
+        .badge.done {
+            border-color: #b8d7c6;
+            color: var(--green-dark);
+        }
+
+        .metrics {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .metric {
+            border: 1px solid var(--line);
+            background: var(--surface);
+            padding: 14px;
+        }
+
+        .metric span {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .metric strong {
+            display: block;
+            margin-top: 7px;
+            font-size: 24px;
+        }
+
+        @media (max-width: 980px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .content {
+                padding: 14px;
+            }
+
+            .topbar,
+            .panel-head {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .row,
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script>
+    const e = React.createElement;
+    const defaultApiBase = window.location.protocol === 'file:'
+        ? 'http://127.0.0.1:5050/api/v1'
+        : `${window.location.origin}/api/v1`;
+
+    function App() {
+        const [view, setView] = React.useState('users');
+        const [apiBase, setApiBase] = React.useState(defaultApiBase);
+        const [message, setMessage] = React.useState({text: 'Ready', kind: ''});
+        const [loading, setLoading] = React.useState(false);
+        const [users, setUsers] = React.useState([]);
+        const [tasks, setTasks] = React.useState([]);
+        const [stats, setStats] = React.useState(null);
+        const [userFilters, setUserFilters] = React.useState({limit: '', offset: ''});
+        const [taskFilters, setTaskFilters] = React.useState({user_id: '', limit: '', offset: ''});
+        const [statFilters, setStatFilters] = React.useState({user_id: '', from: '', to: ''});
+
+        const request = React.useCallback(async (path, options = {}) => {
+            setLoading(true);
+            try {
+                const response = await fetch(`${apiBase.replace(/\/$/, '')}${path}`, {
+                    method: options.method || 'GET',
+                    headers: options.body ? {'Content-Type': 'application/json'} : undefined,
+                    body: options.body ? JSON.stringify(options.body) : undefined,
+                });
+
+                if (response.status === 204) {
+                    setMessage({text: 'Saved', kind: 'ok'});
+                    return null;
+                }
+
+                const payload = await response.json().catch(() => null);
+                if (!response.ok) {
+                    const error = payload?.error || payload?.message || `HTTP ${response.status}`;
+                    setMessage({text: error, kind: 'error'});
+                    throw new Error(error);
+                }
+
+                setMessage({text: 'Loaded', kind: 'ok'});
+                return payload;
+            } finally {
+                setLoading(false);
+            }
+        }, [apiBase]);
+
+        const loadUsers = React.useCallback(async () => {
+            const data = await request(`/users${query(userFilters)}`);
+            setUsers(Array.isArray(data) ? data : []);
+        }, [request, userFilters]);
+
+        const loadTasks = React.useCallback(async () => {
+            const data = await request(`/tasks${query(taskFilters)}`);
+            setTasks(Array.isArray(data) ? data : []);
+        }, [request, taskFilters]);
+
+        const loadStats = React.useCallback(async () => {
+            const data = await request(`/statistics${query(statFilters)}`);
+            setStats(data || null);
+        }, [request, statFilters]);
+
+        React.useEffect(() => {
+            Promise.allSettled([loadUsers(), loadTasks(), loadStats()]);
+        }, []);
+
+        async function refreshAll() {
+            await Promise.allSettled([loadUsers(), loadTasks(), loadStats()]);
+        }
+
+        const viewTitle = {
+            users: ['Users', 'Create, edit, delete, and page through users.'],
+            tasks: ['Tasks', 'Create work items, filter by owner, and mark completion.'],
+            statistics: ['Statistics', 'View task completion metrics by user and date range.'],
+        }[view];
+
+        return e('div', {className: 'app'},
+            e(Sidebar, {view, setView, apiBase, setApiBase}),
+            e('main', {className: 'content'},
+                e('div', {className: 'topbar'},
+                    e('div', null,
+                        e('h2', null, viewTitle[0]),
+                        e('p', null, viewTitle[1]),
+                    ),
+                    e('div', {className: `message ${message.kind}`}, loading ? 'Working...' : message.text),
+                ),
+                view === 'users' && e(UsersView, {
+                    users,
+                    filters: userFilters,
+                    setFilters: setUserFilters,
+                    loadUsers,
+                    request,
+                    refreshAll,
+                }),
+                view === 'tasks' && e(TasksView, {
+                    tasks,
+                    filters: taskFilters,
+                    setFilters: setTaskFilters,
+                    loadTasks,
+                    request,
+                    refreshAll,
+                }),
+                view === 'statistics' && e(StatisticsView, {
+                    stats,
+                    filters: statFilters,
+                    setFilters: setStatFilters,
+                    loadStats,
+                }),
+            ),
+        );
+    }
+
+    function Sidebar({view, setView, apiBase, setApiBase}) {
+        const items = [
+            ['users', 'Users'],
+            ['tasks', 'Tasks'],
+            ['statistics', 'Statistics'],
+        ];
+
+        return e('aside', {className: 'sidebar'},
+            e('div', {className: 'brand'},
+                e('h1', null, 'Todo App'),
+                e('span', null, 'React control panel'),
+            ),
+            e('nav', {className: 'nav'},
+                items.map(([key, label]) => e('button', {
+                    key,
+                    className: view === key ? 'active' : '',
+                    type: 'button',
+                    onClick: () => setView(key),
+                }, label)),
+            ),
+            e('div', {className: 'api-panel'},
+                e('label', null,
+                    'API base',
+                    e('input', {
+                        value: apiBase,
+                        onChange: (event) => setApiBase(event.target.value),
+                    }),
+                ),
+            ),
+        );
+    }
+
+    function UsersView({users, filters, setFilters, loadUsers, request, refreshAll}) {
+        const [create, setCreate] = React.useState({full_name: '', phone_number: ''});
+        const [patch, setPatch] = React.useState({id: '', full_name: '', phone_mode: 'skip', phone_number: ''});
+
+        async function createUser(event) {
+            event.preventDefault();
+            const body = {full_name: create.full_name.trim()};
+            if (create.phone_number.trim()) {
+                body.phone_number = create.phone_number.trim();
+            }
+            await request('/users', {method: 'POST', body});
+            setCreate({full_name: '', phone_number: ''});
+            await refreshAll();
+        }
+
+        async function patchUser(event) {
+            event.preventDefault();
+            const body = {};
+            if (patch.full_name.trim()) {
+                body.full_name = patch.full_name.trim();
+            }
+            if (patch.phone_mode === 'set') {
+                body.phone_number = patch.phone_number.trim();
+            }
+            if (patch.phone_mode === 'clear') {
+                body.phone_number = null;
+            }
+            await request(`/users/${patch.id}`, {method: 'PATCH', body});
+            setPatch({id: '', full_name: '', phone_mode: 'skip', phone_number: ''});
+            await refreshAll();
+        }
+
+        async function deleteUser(id) {
+            await request(`/users/${id}`, {method: 'DELETE'});
+            await refreshAll();
+        }
+
+        return e('div', {className: 'view grid'},
+            e('section', {className: 'panel'},
+                e('div', {className: 'panel-head'}, e('h3', null, 'User Forms')),
+                e('div', {className: 'panel-body'},
+                    e('form', {className: 'form', onSubmit: createUser},
+                        e('h3', null, 'Create User'),
+                        e(TextField, {label: 'Full name', value: create.full_name, required: true, onChange: (full_name) => setCreate({...create, full_name})}),
+                        e(TextField, {label: 'Phone number', value: create.phone_number, placeholder: '+770776054123', onChange: (phone_number) => setCreate({...create, phone_number})}),
+                        e('button', {type: 'submit'}, 'Create user'),
+                    ),
+                    e('form', {className: 'form', onSubmit: patchUser},
+                        e('h3', null, 'Patch User'),
+                        e('div', {className: 'row'},
+                            e(TextField, {label: 'User ID', type: 'number', value: patch.id, required: true, onChange: (id) => setPatch({...patch, id})}),
+                            e(TextField, {label: 'Full name', value: patch.full_name, onChange: (full_name) => setPatch({...patch, full_name})}),
+                        ),
+                        e(SelectField, {
+                            label: 'Phone change',
+                            value: patch.phone_mode,
+                            onChange: (phone_mode) => setPatch({...patch, phone_mode}),
+                            options: [['skip', 'Do not change'], ['set', 'Set phone'], ['clear', 'Clear phone']],
+                        }),
+                        e(TextField, {label: 'Phone number', value: patch.phone_number, placeholder: '+770776054123', onChange: (phone_number) => setPatch({...patch, phone_number})}),
+                        e('button', {type: 'submit'}, 'Patch user'),
+                    ),
+                ),
+            ),
+            e('section', {className: 'panel'},
+                e('div', {className: 'panel-head'},
+                    e('h3', null, 'User List'),
+                    e('div', {className: 'toolbar'},
+                        e(TextField, {label: 'Limit', type: 'number', value: filters.limit, onChange: (limit) => setFilters({...filters, limit})}),
+                        e(TextField, {label: 'Offset', type: 'number', value: filters.offset, onChange: (offset) => setFilters({...filters, offset})}),
+                        e('button', {type: 'button', onClick: loadUsers}, 'Refresh'),
+                    ),
+                ),
+                e('div', {className: 'table-wrap'},
+                    e('table', null,
+                        e('thead', null, e('tr', null,
+                            e('th', null, 'ID'),
+                            e('th', null, 'Version'),
+                            e('th', null, 'Full name'),
+                            e('th', null, 'Phone'),
+                            e('th', null, 'Actions'),
+                        )),
+                        e('tbody', null,
+                            users.length === 0
+                                ? e(EmptyRow, {colspan: 5, text: 'No users'})
+                                : users.map((user) => e('tr', {key: user.id},
+                                    e('td', null, user.id),
+                                    e('td', null, user.version),
+                                    e('td', null, user.full_name),
+                                    e('td', null, user.phone_number || '-'),
+                                    e('td', {className: 'actions'},
+                                        e('button', {className: 'secondary', type: 'button', onClick: () => setPatch({
+                                            id: String(user.id),
+                                            full_name: user.full_name || '',
+                                            phone_mode: user.phone_number ? 'set' : 'skip',
+                                            phone_number: user.phone_number || '',
+                                        })}, 'Edit'),
+                                        e('button', {className: 'danger', type: 'button', onClick: () => deleteUser(user.id)}, 'Delete'),
+                                    ),
+                                )),
+                        ),
+                    ),
+                ),
+            ),
+        );
+    }
+
+    function TasksView({tasks, filters, setFilters, loadTasks, request, refreshAll}) {
+        const [create, setCreate] = React.useState({title: '', description: '', author_user_id: ''});
+        const [patch, setPatch] = React.useState({id: '', title: '', description_mode: 'skip', description: '', completed: 'skip'});
+
+        async function createTask(event) {
+            event.preventDefault();
+            const body = {
+                title: create.title.trim(),
+                author_user_id: Number(create.author_user_id),
+            };
+            if (create.description.trim()) {
+                body.description = create.description.trim();
+            }
+            await request('/tasks', {method: 'POST', body});
+            setCreate({title: '', description: '', author_user_id: ''});
+            await refreshAll();
+        }
+
+        async function patchTask(event) {
+            event.preventDefault();
+            const body = {};
+            if (patch.title.trim()) {
+                body.title = patch.title.trim();
+            }
+            if (patch.description_mode === 'set') {
+                body.description = patch.description.trim();
+            }
+            if (patch.description_mode === 'clear') {
+                body.description = null;
+            }
+            if (patch.completed !== 'skip') {
+                body.completed = patch.completed === 'true';
+            }
+            await request(`/tasks/${patch.id}`, {method: 'PATCH', body});
+            setPatch({id: '', title: '', description_mode: 'skip', description: '', completed: 'skip'});
+            await refreshAll();
+        }
+
+        async function deleteTask(id) {
+            await request(`/tasks/${id}`, {method: 'DELETE'});
+            await refreshAll();
+        }
+
+        async function toggleTask(task) {
+            await request(`/tasks/${task.id}`, {method: 'PATCH', body: {completed: !task.completed}});
+            await refreshAll();
+        }
+
+        return e('div', {className: 'view grid'},
+            e('section', {className: 'panel'},
+                e('div', {className: 'panel-head'}, e('h3', null, 'Task Forms')),
+                e('div', {className: 'panel-body'},
+                    e('form', {className: 'form', onSubmit: createTask},
+                        e('h3', null, 'Create Task'),
+                        e(TextField, {label: 'Title', value: create.title, required: true, onChange: (title) => setCreate({...create, title})}),
+                        e(TextAreaField, {label: 'Description', value: create.description, onChange: (description) => setCreate({...create, description})}),
+                        e(TextField, {label: 'Author user ID', type: 'number', value: create.author_user_id, required: true, onChange: (author_user_id) => setCreate({...create, author_user_id})}),
+                        e('button', {type: 'submit'}, 'Create task'),
+                    ),
+                    e('form', {className: 'form', onSubmit: patchTask},
+                        e('h3', null, 'Patch Task'),
+                        e('div', {className: 'row'},
+                            e(TextField, {label: 'Task ID', type: 'number', value: patch.id, required: true, onChange: (id) => setPatch({...patch, id})}),
+                            e(SelectField, {
+                                label: 'Completed',
+                                value: patch.completed,
+                                onChange: (completed) => setPatch({...patch, completed}),
+                                options: [['skip', 'Do not change'], ['true', 'Completed'], ['false', 'Open']],
+                            }),
+                        ),
+                        e(TextField, {label: 'Title', value: patch.title, onChange: (title) => setPatch({...patch, title})}),
+                        e(SelectField, {
+                            label: 'Description change',
+                            value: patch.description_mode,
+                            onChange: (description_mode) => setPatch({...patch, description_mode}),
+                            options: [['skip', 'Do not change'], ['set', 'Set description'], ['clear', 'Clear description']],
+                        }),
+                        e(TextAreaField, {label: 'Description', value: patch.description, onChange: (description) => setPatch({...patch, description})}),
+                        e('button', {type: 'submit'}, 'Patch task'),
+                    ),
+                ),
+            ),
+            e('section', {className: 'panel'},
+                e('div', {className: 'panel-head'},
+                    e('h3', null, 'Task List'),
+                    e('div', {className: 'toolbar'},
+                        e(TextField, {label: 'User ID', type: 'number', value: filters.user_id, onChange: (user_id) => setFilters({...filters, user_id})}),
+                        e(TextField, {label: 'Limit', type: 'number', value: filters.limit, onChange: (limit) => setFilters({...filters, limit})}),
+                        e(TextField, {label: 'Offset', type: 'number', value: filters.offset, onChange: (offset) => setFilters({...filters, offset})}),
+                        e('button', {type: 'button', onClick: loadTasks}, 'Refresh'),
+                    ),
+                ),
+                e('div', {className: 'table-wrap'},
+                    e('table', null,
+                        e('thead', null, e('tr', null,
+                            e('th', null, 'ID'),
+                            e('th', null, 'Version'),
+                            e('th', null, 'Title'),
+                            e('th', null, 'Status'),
+                            e('th', null, 'Author'),
+                            e('th', null, 'Created'),
+                            e('th', null, 'Completed'),
+                            e('th', null, 'Actions'),
+                        )),
+                        e('tbody', null,
+                            tasks.length === 0
+                                ? e(EmptyRow, {colspan: 8, text: 'No tasks'})
+                                : tasks.map((task) => e('tr', {key: task.id},
+                                    e('td', null, task.id),
+                                    e('td', null, task.version),
+                                    e('td', null, task.title),
+                                    e('td', null, e('span', {className: `badge ${task.completed ? 'done' : ''}`}, task.completed ? 'Completed' : 'Open')),
+                                    e('td', null, task.author_user_id),
+                                    e('td', null, formatDate(task.created_at)),
+                                    e('td', null, formatDate(task.completed_at)),
+                                    e('td', {className: 'actions'},
+                                        e('button', {className: 'secondary', type: 'button', onClick: () => setPatch({
+                                            id: String(task.id),
+                                            title: task.title || '',
+                                            description_mode: task.description ? 'set' : 'skip',
+                                            description: task.description || '',
+                                            completed: task.completed ? 'true' : 'false',
+                                        })}, 'Edit'),
+                                        e('button', {className: 'warning', type: 'button', onClick: () => toggleTask(task)}, task.completed ? 'Reopen' : 'Complete'),
+                                        e('button', {className: 'danger', type: 'button', onClick: () => deleteTask(task.id)}, 'Delete'),
+                                    ),
+                                )),
+                        ),
+                    ),
+                ),
+            ),
+        );
+    }
+
+    function StatisticsView({stats, filters, setFilters, loadStats}) {
+        return e('div', {className: 'view'},
+            e('section', {className: 'panel'},
+                e('div', {className: 'panel-head'},
+                    e('h3', null, 'Filters'),
+                    e('div', {className: 'toolbar'},
+                        e(TextField, {label: 'User ID', type: 'number', value: filters.user_id, onChange: (user_id) => setFilters({...filters, user_id})}),
+                        e(TextField, {label: 'From', type: 'date', value: filters.from, onChange: (from) => setFilters({...filters, from})}),
+                        e(TextField, {label: 'To', type: 'date', value: filters.to, onChange: (to) => setFilters({...filters, to})}),
+                        e('button', {type: 'button', onClick: loadStats}, 'Refresh'),
+                    ),
+                ),
+            ),
+            e('div', {className: 'metrics'},
+                e(Metric, {label: 'Created', value: stats?.task_created ?? 0}),
+                e(Metric, {label: 'Completed', value: stats?.task_completed ?? 0}),
+                e(Metric, {label: 'Rate', value: stats?.task_completed_rate == null ? '-' : `${stats.task_completed_rate}%`}),
+                e(Metric, {label: 'Average Time', value: stats?.tasks_average_completion_time || '-'}),
+            ),
+        );
+    }
+
+    function TextField({label, value, onChange, type = 'text', required = false, placeholder = ''}) {
+        return e('label', null,
+            label,
+            e('input', {
+                type,
+                value,
+                required,
+                placeholder,
+                onChange: (event) => onChange(event.target.value),
+            }),
+        );
+    }
+
+    function TextAreaField({label, value, onChange}) {
+        return e('label', null,
+            label,
+            e('textarea', {
+                value,
+                onChange: (event) => onChange(event.target.value),
+            }),
+        );
+    }
+
+    function SelectField({label, value, onChange, options}) {
+        return e('label', null,
+            label,
+            e('select', {
+                value,
+                onChange: (event) => onChange(event.target.value),
+            }, options.map(([optionValue, optionLabel]) => e('option', {key: optionValue, value: optionValue}, optionLabel))),
+        );
+    }
+
+    function Metric({label, value}) {
+        return e('div', {className: 'metric'},
+            e('span', null, label),
+            e('strong', null, value),
+        );
+    }
+
+    function EmptyRow({colspan, text}) {
+        return e('tr', null, e('td', {colSpan: colspan, className: 'muted'}, text));
+    }
+
+    function query(values) {
+        const params = new URLSearchParams();
+        Object.entries(values).forEach(([key, value]) => {
+            if (value !== '') {
+                params.set(key, value);
+            }
+        });
+        const stringified = params.toString();
+        return stringified ? `?${stringified}` : '';
+    }
+
+    function formatDate(value) {
+        if (!value) {
+            return '-';
+        }
+        return new Date(value).toLocaleString();
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(e(App));
+</script>
+</body>
+</html>

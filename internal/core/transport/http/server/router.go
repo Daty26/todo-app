@@ -31,7 +31,7 @@ func (r *APIVersionRouter) RegisterRoutes(routes ...Route) {
 		r.Handle(pattern, route.WithMiddleware())
 	}
 }
-func (r *APIVersionRouter) WithMiddleWarew() http.Handler {
+func (r *APIVersionRouter) WithMiddleWare() http.Handler {
 	return core_http_middleware.ChainMiddleware(
 		r, r.middleware...)
 }

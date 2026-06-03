@@ -3,6 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	core_config "github.com/Daty26/todo-app/internal/core/config"
 	core_logger "github.com/Daty26/todo-app/internal/core/logger"
 	"github.com/Daty26/todo-app/internal/core/repository/postgres/pool/pgx"
@@ -17,11 +22,10 @@ import (
 	user_postgres_repository "github.com/Daty26/todo-app/internal/features/users/repository/postgres"
 	users_service "github.com/Daty26/todo-app/internal/features/users/service"
 	users_transport_http "github.com/Daty26/todo-app/internal/features/users/transport/http"
+	web_fs_repository "github.com/Daty26/todo-app/internal/features/web/repository/file_system"
+	web_service "github.com/Daty26/todo-app/internal/features/web/service"
+	web_transport_http "github.com/Daty26/todo-app/internal/features/web/transport/http"
 	"go.uber.org/zap"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
 	_ "github.com/Daty26/todo-app/docs"
 )
@@ -68,6 +72,10 @@ func main() {
 	statisticsService := statistics_service.NewStatisticService(statisticsRepository)
 	statisticsTransportHTTP := statistics_transport_http.NewStatisticsHTTPHandler(statisticsService)
 
+	logger.Debug("initializing feature", zap.String("feature", "web"))
+	webrepository := web_fs_repository.NewWebRepository()
+	webService := web_service.NewWebService(webrepository)
+	webTrasnportHTTP := web_transport_http.NewWebHTTPHandler(webService)
 	logger.Debug("initializing HTTP Server")
 	httpServer := core_http_server.NewHTTPServer(
 		core_http_server.NewConfigMust(),
@@ -84,8 +92,8 @@ func main() {
 	apiVersionRouter.RegisterRoutes(tasksTransportHTTP.Routes()...)
 	apiVersionRouter.RegisterRoutes(statisticsTransportHTTP.Routes()...)
 	httpServer.RegisterAPIRouters(apiVersionRouter)
+	httpServer.RegisterRoutes(webTrasnportHTTP.Routes()...)
 	httpServer.RegisterSwagger()
-
 	if err = httpServer.Run(ctx); err != nil {
 		logger.Error("HTTP server run error", zap.Error(err))
 	}

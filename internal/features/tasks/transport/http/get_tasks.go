@@ -4,16 +4,28 @@ import (
 	"fmt"
 	core_logger "github.com/Daty26/todo-app/internal/core/logger"
 	core_http_request "github.com/Daty26/todo-app/internal/core/transport/http/request"
-	core_http_reponse "github.com/Daty26/todo-app/internal/core/transport/http/response"
+	core_http_response "github.com/Daty26/todo-app/internal/core/transport/http/response"
 	"net/http"
 )
 
 type GetTasksResponse []TaskDTOResponse
 
+// GetTasks godoc
+// @Summary List tasks
+// @Description View the list of tasks with optional user filter and pagination
+// @Tags tasks
+// @Produce json
+// @Param user_id query int false "ID of the user that owns the tasks"
+// @Param limit query int false "The size of the page with tasks"
+// @Param offset query int false "Offset of the page with tasks"
+// @Success 200 {array} TaskDTOResponse "Successfully received the list of tasks"
+// @Failure 400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure 500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router /tasks [get]
 func (h *TasksHTTPHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
-	responseHandler := core_http_reponse.NewHTTPesponseHandler(log, w)
+	responseHandler := core_http_response.NewHTTPesponseHandler(log, w)
 
 	userID, limit, offset, err := getUserIDLimitOffsetQueryParams(r)
 	if err != nil {

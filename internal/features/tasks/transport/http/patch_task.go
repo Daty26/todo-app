@@ -5,7 +5,7 @@ import (
 	"github.com/Daty26/todo-app/internal/core/domain"
 	core_logger "github.com/Daty26/todo-app/internal/core/logger"
 	core_http_request "github.com/Daty26/todo-app/internal/core/transport/http/request"
-	core_http_reponse "github.com/Daty26/todo-app/internal/core/transport/http/response"
+	core_http_response "github.com/Daty26/todo-app/internal/core/transport/http/response"
 	core_http_types "github.com/Daty26/todo-app/internal/core/transport/http/types"
 	"net/http"
 )
@@ -44,10 +44,23 @@ func (r *PatchTaskRequest) Validate() error {
 
 type PatchTaskResponse TaskDTOResponse
 
+// PatchTask godoc
+// @Summary Patch task
+// @Description Partially update an existing task by id
+// @Tags tasks
+// @Accept json
+// @Produce json
+// @Param id path int true "ID of the task that needs to be patched"
+// @Param request body PatchTaskRequest true "PatchTask request body"
+// @Success 200 {object} PatchTaskResponse "Successfully patched task"
+// @Failure 400 {object} core_http_response.ErrorResponse "Bad request"
+// @Failure 404 {object} core_http_response.ErrorResponse "Task not found"
+// @Failure 500 {object} core_http_response.ErrorResponse "Internal server error"
+// @Router /tasks/{id} [patch]
 func (h *TasksHTTPHandler) Patchtask(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
-	responseHandler := core_http_reponse.NewHTTPesponseHandler(log, w)
+	responseHandler := core_http_response.NewHTTPesponseHandler(log, w)
 	taskID, err := core_http_request.GetIntPathValues(r, "id")
 	if err != nil {
 		responseHandler.ErrorResponse(err, "failed to get taskID path value")

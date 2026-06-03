@@ -29,8 +29,7 @@ func (r *UserRepository) PatchUser(ctx context.Context, id int, user domain.User
 	row := r.pool.QueryRow(ctx, query, user.FullName, user.PhoneNumber, id, user.Version)
 	if err := row.Scan(&userModel.ID, &userModel.Version, &userModel.FullName, &userModel.PhoneNumber); err != nil {
 		if errors.Is(err, core_postgres_pool.ErrNoRows) {
-			return domain.User{}, fmt.Errorf(""+
-				"user with id='%d' concurrently accessed:", id, core_errors.ErrConflict)
+			return domain.User{}, fmt.Errorf("user with id='%d' concurrently accessed: %w", id, core_errors.ErrConflict)
 		}
 		return domain.User{}, fmt.Errorf("scan error: %w", err)
 	}

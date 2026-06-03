@@ -22,8 +22,15 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	_ "github.com/Daty26/todo-app/docs"
 )
 
+// @title 			Todo API
+// @version 		1.0
+// @description		Todo Application RES-API scheme
+// @host 			127.0.0.1:5050
+// @BasePath 		/api/v1
 func main() {
 	config := core_config.NewConfigMust()
 	time.Local = config.TimeZone
@@ -65,6 +72,7 @@ func main() {
 	httpServer := core_http_server.NewHTTPServer(
 		core_http_server.NewConfigMust(),
 		logger,
+		core_http_middleware.CORS(),
 		core_http_middleware.RequestID(),
 		core_http_middleware.Logger(logger),
 		core_http_middleware.Trace(),
@@ -76,6 +84,8 @@ func main() {
 	apiVersionRouter.RegisterRoutes(tasksTransportHTTP.Routes()...)
 	apiVersionRouter.RegisterRoutes(statisticsTransportHTTP.Routes()...)
 	httpServer.RegisterAPIRouters(apiVersionRouter)
+	httpServer.RegisterSwagger()
+
 	if err = httpServer.Run(ctx); err != nil {
 		logger.Error("HTTP server run error", zap.Error(err))
 	}

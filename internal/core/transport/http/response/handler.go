@@ -29,6 +29,15 @@ func (h *HTTPResponseHandler) JSONResponse(responseBody any, statusCode int) {
 	}
 }
 
+func (h *HTTPResponseHandler) HTMLResponse(html []byte){
+	h.w.WriteHeader(http.StatusOK)
+	h.w.Header().Set("Content-Type", "text/html charset=utf-8")
+	if _, err := h.w.Write(html); err != nil{
+		h.log.Error("write HTML HTTP response", zap.Error(err))	
+	}
+
+}
+
 func (h *HTTPResponseHandler) PanicResponse(p any, msg string) {
 	statusCode := http.StatusInternalServerError
 	err := fmt.Errorf("unexpected panic: %v", p)

@@ -1,3 +1,4 @@
 .idea
 .env
 out
+k8s/secret.yaml

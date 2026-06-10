@@ -8,7 +8,7 @@ A full-stack Todo application built with Go, PostgreSQL, Docker, Swagger, and a 
 - Clean feature-based structure for users, tasks, statistics, and web UI
 - PostgreSQL persistence with migrations
 - Request validation, domain validation, and structured error responses
-- Docker-based local environment and deployment
+- Docker/Kubernetes-based environment and deployment
 - Swagger/OpenAPI documentation
 - Simple frontend served by the Go backend
 - Logging, request IDs, CORS, graceful shutdown, and middleware composition
@@ -204,6 +204,42 @@ Stop it:
 
 ```bash
 make todoapp-undeploy
+```
+
+## Kubernetes Deployment
+
+The app can be deployed to a single-node K3s cluster, for example on an Ubuntu laptop.
+
+Build and push the application image:
+
+```bash
+docker buildx build \
+  --platform linux/amd64 \
+  -t docker.io/daty26/todoapp:0.1.0 \
+  -f cmd/todoapp/Dockerfile \
+  --push \
+  .
+```
+
+Create the real Kubernetes secret manually:
+
+```bash
+kubectl -n todoapp create secret generic todoapp-secret \
+  --from-literal=POSTGRES_USER=todoapp \
+  --from-literal=POSTGRES_PASSWORD=todoapp \
+  --from-literal=POSTGRES_DB=todoapp
+```
+
+Apply the Kubernetes manifests:
+
+```bash
+kubectl apply -k k8s/
+```
+
+The app is exposed through a NodePort service:
+
+```text
+http://<node-ip>:30505/
 ```
 
 ## Swagger Documentation

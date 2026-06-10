@@ -16,6 +16,7 @@ import (
 	statistics_postgres_repository "github.com/Daty26/todo-app/internal/features/statistics/repository/postgres"
 	statistics_service "github.com/Daty26/todo-app/internal/features/statistics/service"
 	statistics_transport_http "github.com/Daty26/todo-app/internal/features/statistics/transport/http"
+	health_transport_http "github.com/Daty26/todo-app/internal/features/health/transport/http"
 	tasks_postgres_repository "github.com/Daty26/todo-app/internal/features/tasks/repository/postgres"
 	tasks_service "github.com/Daty26/todo-app/internal/features/tasks/service"
 	tasks_transport_http "github.com/Daty26/todo-app/internal/features/tasks/transport/http"
@@ -93,6 +94,8 @@ func main() {
 	apiVersionRouter.RegisterRoutes(tasksTransportHTTP.Routes()...)
 	apiVersionRouter.RegisterRoutes(statisticsTransportHTTP.Routes()...)
 	httpServer.RegisterAPIRouters(apiVersionRouter)
+	healthTransportHTTP := health_transport_http.NewHealthHTTPHandler(pool)
+	httpServer.RegisterRoutes(healthTransportHTTP.Routes()...)
 	httpServer.RegisterRoutes(webTrasnportHTTP.Routes()...)
 	httpServer.RegisterSwagger()
 	if err = httpServer.Run(ctx); err != nil {

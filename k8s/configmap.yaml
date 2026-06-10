@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todoapp-config
+  namespace: todoapp
+data:
+  HTTP_ADDR: ":5050"
+  HTTP_SHUTDOWN_TIMEOUT: "30s"
+  HTTP_ALLOWED_ORIGINS: "http://192.168.0.113:30505"
+  POSTGRES_HOST: "todoapp-postgres"
+  POSTGRES_TIMEOUT: "5s"
+  LOGGER_LEVEL: "DEBUG"
+  LOGGER_FOLDER: "/app/out/logs"
+  TIME_ZONE: "Asia/Almaty"

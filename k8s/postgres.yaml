@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: todoapp-postgres
+  namespace: todoapp
+spec:
+  selector:
+    app: todoapp-postgres
+  type: 
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: todoapp-postgres
+  namespace: todoapp
+spec: 
+  serviceName: todoapp-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todoapp-postgres
+  template:
+    metadata: 
+      labels: 
+        app: todoapp-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:18.4-bookworm
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: todoapp-secret
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /val/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
